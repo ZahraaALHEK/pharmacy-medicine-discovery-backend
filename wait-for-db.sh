@@ -3,7 +3,7 @@
 
 set -e
 
-host="$dpg-d55homer433s73dksbs0-a"
+host="$dpg-d55homer433s73dksbs0-a.internal"
 port="5432"
 
 echo "Waiting for PostgreSQL at $host:$port..."
@@ -20,4 +20,5 @@ echo "PostgreSQL is ready! Running migrations and seeders..."
 php artisan migrate --force
 php artisan db:seed --force
 # Start Laravel built-in server
-php -S 0.0.0.0:10000 -t public
+php -S 0.0.0.0:${PORT:-10000} -t public
+
