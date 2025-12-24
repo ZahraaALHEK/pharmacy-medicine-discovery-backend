@@ -7,7 +7,7 @@ FROM php:8.2-cli
 
 # 2️⃣ Install system packages and PHP extensions
 RUN apt-get update && apt-get install -y \
-    libpq-dev zip unzip git \
+    libpq-dev zip unzip git postgresql-client \
     && docker-php-ext-install pdo pdo_pgsql \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
@@ -20,13 +20,14 @@ WORKDIR /app
 # 5️⃣ Copy all project files
 COPY . .
 
-# 6️⃣ Install Laravel dependencies
+# 6️⃣ Make wait-for-db.sh executable
+RUN chmod +x wait-for-db.sh
+
+# 7️⃣ Install Laravel dependencies
 RUN composer install --no-dev --optimize-autoloader
 
-# 7️⃣ Expose port for Render
+# 8️⃣ Expose port for Render
 EXPOSE 10000
 
-# 8️⃣ Start Laravel with migrations & seeders
-CMD php artisan migrate --force && \
-    php artisan db:seed --class=AdminSeeder && \
-    php -S 0.0.0.0:10000 -t public
+# 9️⃣ Start Laravel: wait for DB, run migrations & seeders, then start server
+CMD ["./wait-for-db.sh"]
